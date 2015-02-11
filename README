@@ -1,0 +1,69 @@
+Nume: Datcu Andrei Daniel
+Grupa: 342C1
+
+Configurari: Toate configurarile au fost facute conform cerintei (server mDNS, ip prin dhcp, server http - lighttpd)
+
+Functionalitate:
+
+	Intreaga functionalitate este asigurata de scripturi python.
+
+	Patternul becurilor: cate o serie de 12 caractere pe linie in fisierul pattern '*' = aprins, '-' = stins. Se va afisa fiecare pattern in ciclu atat timp cat trebuie aprins
+	ATENTIE, device-nodul driver trebuie sa existe (fisierul sa fie prezent si sa avem drepturi de scriere pe el) ca lucrurile sa mearga. Daca ceva nu e conform asteptarii,
+	de obicei se afiseaza un mesaj de eroare in browser. Configurarea actuala se tine in fisierul /home/root/xmas.cfg. Daca se doreste sa se schimbe calea, trebuie modificat
+	in 2 scripturi index.py, process_args.py.
+	Datele - se specifica in interfata. Daca data aflata in dreapta intervalului este mai veche decat data curenta, atunci sistemul nu va porni (Se va afisa oprit cu rosul)
+	Timpul - intervalul t1 -- t2 poate specificat in doua moduri: a) t1 < t2 si b) t1 > t2 <=> aprinde becurile de la t1 la 23:59 azi si de la 00:00 la t2 maine
+
+	In interfata web, mai sunt prezentate data si timpul curent, precum si starea sistemului - pornit sau oprit. Pornit inseamna ca scriptul de control este activ, NU ca becurile sunt aprinse
+	Daca sistemul este pornit fie becurile merg, fie vor merge la urmatorul interval valabil (fie azi, fie maine). Daca becurile nu se vor mai aprinde niciodata, sistemul este oprit
+
+	Sunt 3 viteze, conform cerintei: lent (luminile se schimba o data la 3 secunde), normal (... o data la 1.5 secunde),. rapid (o data la 0.75 secunde)
+
+	Cum functioneaza interfata web:
+
+		Se inlantuiesc mai multe scripturi astfel:
+
+		1. index.py - scriptul care genereaza pagina de start, in functie de ce e in fisierul de configurare (sau de valorile defautl daca acesta nu exista inca) si care trimite parametrii submisi urmatorului script
+		2. process_args.py - scriptul care trateaza argumentele venite in urma POST din scriptul anterior. Acesta fie opreste sistemul, fie il reporneste cu noile argumente si scrie modificarile in log
+		3. lights_controller.py - scriptul care controleaza aprinderea si stingerea luminilor. Primeste ca parametrii: device_node_path start_date start_time end_date end_time speed pattern_file
+
+	
+	lights_controller.py:
+
+		--> Daca fisierul pattern e gol se vor aprinde toate becurile o data
+
+	script pseudo-cod:
+
+	cat timp adevarat:
+		trebuie sa aprind becurile?:
+			aprinde urmatorul pattern
+		altfel:
+			stinge becurile
+			sleep pana cand terbuie sa le aprind iar
+
+	La sigterm, scriptul stinge becurile.
+	Practic, sistem activ == scriptul ruleaza. La schimbarea parametrilor, scriptul este omorat si pornit cu noii parametrii
+
+
+	logrotate: Am folosit logrotate astfel:
+			De fiecare daca cand se schimba fisierul de log, generez o noua configurare de logrotate in /etc/logrotate.d cu parametrii:
+				->rotate 0 (adica nu pastram nicio copie dupa rotatie)
+				->size xM (unde x e spatiul liber pe device in momentul in care a fost generat acest fisier)
+
+	
+	Rulare QUEMU:
+		se ruelaza cu scriptul launch.sh. Este necesar rularea cu privilegii. Scriptul presupune ca bridge-ul virtual se numeste virbr0.
+
+	Locatie scripturi:
+		-> Pe device, toate scripturile se gasesc in /www/pages
+		-> In arhiva se gasesc in site_source (arhive + css + js)
+
+	Patchuri:
+		-> Patchurile se gasesc in directorul patches. La poky n-am facut nicio schimbare, iar la meta-raspberry am adaugat o noua imagine in reteta de core : rpi-si-image
+
+Bonusuri:
+	->logrotate
+	->interfata folosind bootstrap si controllere custom pentru data si timp
+	->Verificarea majoritatii erorilor (fisiere inexistente sau inaccesibile etc.)
+
+

@@ -1,0 +1,33 @@
+diff --git a/recipes-core/images/rpi-si-image.bb b/recipes-core/images/rpi-si-image.bb
+deleted file mode 100644
+index 916d9b6..0000000
+--- a/recipes-core/images/rpi-si-image.bb
++++ /dev/null
+@@ -1,27 +0,0 @@
+-# Base this image on rpi-hwup-image
+-include rpi-hwup-image.bb
+-
+-IMAGE_FEATURES += "ssh-server-dropbear"
+-
+-ROOTFS_POSTPROCESS_COMMAND += "set_root_passwd;"
+-ROOTFS_POSTPROCESS_COMMAND += "set_hostname;"
+-
+-set_root_passwd() {
+-   sed 's%^root:[^:]*:%root:$1$Ry3cKU1a$cRgsFS748PFJS9/uodp9I1:%' \
+-       < ${IMAGE_ROOTFS}/etc/passwd \
+-       > ${IMAGE_ROOTFS}/etc/passwd.new;
+-   mv ${IMAGE_ROOTFS}/etc/passwd.new ${IMAGE_ROOTFS}/etc/passwd ;
+-}
+-
+-set_hostname() {
+-   echo "temasi" > ${IMAGE_ROOTFS}/etc/hostname ;
+-}
+-
+-
+-IMAGE_INSTALL += "avahi-dnsconfd avahi-dev avahi-dbg avahi-staticdev avahi-doc avahi-daemon libavahi-glib avahi-autoipd libavahi-core libavahi-client avahi-locale-en-gb avahi-utils libavahi-common libavahi-gobject"
+-IMAGE_INSTALL += "lighttpd-module-cgi lighttpd-module-rewrite lighttpd-module-alias lighttpd-dev lighttpd-module-indexfile lighttpd-module-dirlisting lighttpd-module-access lighttpd-module-fastcgi lighttpd-module-accesslog lighttpd lighttpd-module-staticfile lighttpd-module-redirect"
+-IMAGE_INSTALL += "at cronie"
+-IMAGE_INSTALL += "python-datetime python-netserver python-subprocess"
+-IMAGE_INSTALL += "logrotate"
+-IMAGE_INSTALL += "procps"
+-
